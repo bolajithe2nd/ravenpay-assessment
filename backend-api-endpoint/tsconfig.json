@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "module": "Node16",
+    "target": "ES2022",
+    "strict": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "@config/*": ["src/config/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"]
+    },
+    "outDir": "./dist",
+    "rootDir": ".",
+    "sourceMap": true,
+    "typeRoots": ["./node_modules/@types", "./@types"],
+    "types": ["node", "express"]
+  },
+  "include": ["src/**/*", "@types/**/*", "knexfile.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

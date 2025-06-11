@@ -1,7 +1,6 @@
 let tradingViewWidget = null;
 let chartReady = false;
 
-// Symbol mapping for display names
 const symbolDisplayNames = {
   "BINANCE:BTCUSDT": "Bitcoin/USDT",
   "BINANCE:ETHUSDT": "Ethereum/USDT",
@@ -12,17 +11,14 @@ const symbolDisplayNames = {
   "BINANCE:MATICUSDT": "Polygon/USDT",
 };
 
-// Declare TradingView variable
 const TradingView = window.TradingView || {};
 
 function initializeTradingViewChart() {
-  // Check if TradingView library is loaded
   if (typeof TradingView === "undefined") {
     console.error("TradingView library not loaded");
     return null;
   }
 
-  // Clear any existing chart
   const chartContainer = document.getElementById("chart");
   if (chartContainer) {
     chartContainer.innerHTML = "";
@@ -79,13 +75,11 @@ function initializeTradingViewChart() {
     custom_css_url: "../css/style.css",
   });
 
-  // Set up chart ready callback
   widget.onChartReady(() => {
     console.log("TradingView chart loaded successfully");
     tradingViewWidget = widget;
     chartReady = true;
 
-    // Initialize symbol selector after chart is ready
     initializeSymbolSelector();
   });
 
@@ -100,11 +94,9 @@ function initializeSymbolSelector() {
     return;
   }
 
-  // Remove existing event listeners to prevent duplicates
   const newSelect = symbolSelect.cloneNode(true);
   symbolSelect.parentNode.replaceChild(newSelect, symbolSelect);
 
-  // Add event listener to the new element
   newSelect.addEventListener("change", handleSymbolChange);
 
   console.log("Symbol selector initialized");
@@ -114,15 +106,12 @@ function handleSymbolChange(event) {
   const selectedSymbol = event.target.value;
   console.log("Symbol change requested:", selectedSymbol);
 
-  // Check if chart is ready
   if (!chartReady || !tradingViewWidget) {
     console.warn("Chart not ready or widget not available");
     return;
   }
 
   try {
-    // The correct way to change symbol in TradingView widget
-    // Use the chart() method to get chart instance, then setSymbol
     const chart = tradingViewWidget.chart();
 
     if (chart && typeof chart.setSymbol === "function") {
@@ -134,12 +123,10 @@ function handleSymbolChange(event) {
       });
     } else {
       console.log("chart.setSymbol not available, trying alternative method");
-      // Alternative method: recreate the widget
       recreateChartWithSymbol(selectedSymbol);
     }
   } catch (error) {
     console.error("Error changing symbol:", error);
-    // Fallback: recreate the widget
     recreateChartWithSymbol(selectedSymbol);
   }
 }
@@ -148,19 +135,15 @@ function recreateChartWithSymbol(symbol) {
   console.log(`Recreating chart with symbol: ${symbol}`);
 
   try {
-    // Reset state
     chartReady = false;
     tradingViewWidget = null;
 
-    // Clear container
     const chartContainer = document.getElementById("chart");
     if (chartContainer) {
       chartContainer.innerHTML = "";
     }
 
-    // Small delay to ensure cleanup
     setTimeout(() => {
-      // Create new widget with selected symbol
       const widget = new TradingView.widget({
         width: "100%",
         height: 700,
@@ -199,32 +182,94 @@ function recreateChartWithSymbol(symbol) {
 }
 
 function updateDisplayInfo(symbol) {
-  // Update any display elements that show the current symbol
   const displayName = symbolDisplayNames[symbol] || symbol;
   console.log(`Updated display for: ${displayName}`);
-
-  // You can add code here to update price displays, etc.
-  // For example, update the price display in the top info section
 }
 
-// Initialize when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  const tabButtons = document.querySelectorAll(
+    ".main__content-item1-tab-toggle button"
+  );
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  function switchTab(tabId) {
+    tabContents.forEach((content) => {
+      content.classList.remove("active");
+    });
+
+    tabButtons.forEach((button) => {
+      button.classList.remove("active");
+    });
+
+    const selectedTab = document.getElementById(tabId);
+    const selectedButton = document.querySelectorAll(`[data-tab="${tabId}"]`);
+
+    if (selectedTab && selectedButton) {
+      selectedTab.classList.add("active");
+      selectedButton.forEach((button) => button.classList.add("active"));
+    }
+  }
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const tabId = button.getAttribute("data-tab");
+      switchTab(tabId);
+    });
+  });
+});
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   const mobileTabs = document.querySelectorAll(".chart-tabs-mobile button");
+//   const chartTab = document.getElementById("chart");
+//   const ordersTab = document.querySelector(".orders-tab");
+
+//   function switchMobileTab(tabId) {
+//     mobileTabs.forEach((tab) => tab.classList.remove("active"));
+
+//     if (tabId === "chart") {
+//       chartTab.style.display = "block";
+//       ordersTab.style.display = "none";
+//       document.querySelector('[data-tab="chart"]').classList.add("active");
+//     } else {
+//       chartTab.style.display = "none";
+//       ordersTab.style.display = "block";
+//       document.querySelector('[data-tab="trades"]').classList.add("active");
+//     }
+//   }
+
+//   mobileTabs.forEach((tab) => {
+//     tab.addEventListener("click", () => {
+//       const tabId = tab.getAttribute("data-tab");
+//       switchMobileTab(tabId);
+//     });
+//   });
+
+//   // Handle resize events to reset layout
+//   window.addEventListener("resize", () => {
+//     if (window.innerWidth > 1024) {
+//       chartTab.style.display = "block";
+//       ordersTab.style.display = "block";
+//     } else {
+//       // Return to default mobile tab
+//       switchMobileTab("chart");
+//     }
+//   });
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM loaded, initializing chart...");
 
-  // Small delay to ensure TradingView library is fully loaded
   setTimeout(() => {
     initializeTradingViewChart();
   }, 500);
 });
 
-// Handle window resize
 window.addEventListener("resize", () => {
   if (tradingViewWidget && chartReady) {
     console.log("Window resized - chart will auto-adjust");
   }
 });
 
-// Debug function for troubleshooting
 window.debugChart = () => {
   console.log("=== Chart Debug Info ===");
   console.log("Chart ready:", chartReady);
@@ -253,7 +298,25 @@ window.debugChart = () => {
   }
 };
 
-// Export functions for external access
 window.initializeTradingViewChart = initializeTradingViewChart;
 window.handleSymbolChange = handleSymbolChange;
 window.recreateChartWithSymbol = recreateChartWithSymbol;
+
+// Mobile Menu
+const menuButton = document.querySelector(".header__menu-icon");
+const mobileMenu = document.querySelector(".mobile__menu");
+
+menuButton.addEventListener("click", () => {
+  mobileMenu.classList.toggle("show-menu");
+  document.body.style.overflow = mobileMenu.classList.contains("show-menu")
+    ? "hidden"
+    : "";
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", (e) => {
+  if (!menuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
+    mobileMenu.classList.remove("show-menu");
+    document.body.style.overflow = "";
+  }
+});
